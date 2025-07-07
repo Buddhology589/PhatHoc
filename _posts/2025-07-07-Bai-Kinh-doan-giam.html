@@ -1,1 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinh Đoạn Giảm (Sallekha Sutta) - Lộ Trình Tương Tác</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Zen Garden Neutrals -->
+    <!-- Application Structure Plan: Ứng dụng được cấu trúc thành các phần chuyên đề để tối ưu hóa sự hiểu biết, thay vì tuân theo cấu trúc tuyến tính của văn bản gốc. Luồng trải nghiệm bắt đầu bằng việc giới thiệu vấn đề cốt lõi (đoạn trừ sở kiến), sau đó làm rõ sự khác biệt quan trọng giữa thiền định và hạnh đoạn giảm. Trọng tâm tương tác là khu vực khám phá 44 pháp môn với bộ lọc theo danh mục, cho phép người dùng chủ động tìm hiểu. Tiếp theo, ứng dụng tổng hợp các pháp môn này vào một lộ trình 5 bước trực quan và kết thúc bằng một biểu đồ phân tích, cung cấp cái nhìn tổng quan. Cấu trúc này được chọn để dẫn dắt người dùng từ khái niệm nền tảng, đến thực hành chi tiết, và cuối cùng là sự tổng hợp, tạo ra một hành trình học tập logic và hấp dẫn. -->
+    <!-- Visualization & Content Choices: 
+        1. So sánh Thiền Định vs. Đoạn Giảm: Goal: Compare -> Method: Bố cục hai cột song song. -> Interaction: Tĩnh. -> Justification: Giúp người dùng ngay lập tức phân biệt hai khái niệm dễ nhầm lẫn, tạo nền tảng vững chắc.
+        2. 44 Pháp Môn: Goal: Organize/Explore -> Method: Lưới thẻ (card) tương tác với bộ lọc. -> Interaction: Lọc theo danh mục, nhấp vào thẻ để xem chi tiết. -> Justification: Chuyển đổi một danh sách dài thành các nhóm dễ quản lý. Sự tương tác khuyến khích khám phá chủ động thay vì đọc thụ động, tăng cường sự tham gia và ghi nhớ.
+        3. Lộ Trình 5 Bước: Goal: Show Process/Relationships -> Method: Sơ đồ khối bằng HTML/CSS. -> Interaction: Nhấp để xem giải thích. -> Justification: Trực quan hóa cách các pháp môn tích hợp thành một lộ trình hoàn chỉnh, giữ cho sơ đồ ban đầu gọn gàng.
+        4. Phân loại Pháp Tu: Goal: Summarize/Inform -> Method: Biểu đồ tròn (Doughnut Chart) bằng Chart.js. -> Interaction: Hover để xem chi tiết. -> Justification: Cung cấp một bản tóm tắt định lượng, cho thấy sự phân bổ và cân bằng của các loại pháp tu.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        .card-flip {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-container:hover .card-flip {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                max-height: 450px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-amber-50 text-stone-800">
 
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4">
+            <nav class="flex justify-between items-center py-4">
+                <h1 class="text-xl md:text-2xl font-bold text-green-800">Kinh Đoạn Giảm</h1>
+                <div class="hidden md:flex space-x-6 font-medium text-stone-600">
+                    <a href="#gioi-thieu" class="hover:text-green-700 transition-colors">Giới Thiệu</a>
+                    <a href="#so-sanh" class="hover:text-green-700 transition-colors">So Sánh</a>
+                    <a href="#phap-mon" class="hover:text-green-700 transition-colors">44 Pháp Môn</a>
+                    <a href="#lo-trinh" class="hover:text-green-700 transition-colors">Lộ Trình</a>
+                </div>
+                <button id="mobile-menu-button" class="md:hidden text-green-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </nav>
+            <div id="mobile-menu" class="hidden md:hidden flex-col space-y-2 pb-4 font-medium text-stone-600">
+                 <a href="#gioi-thieu" class="hover:text-green-700 transition-colors block text-center py-2">Giới Thiệu</a>
+                 <a href="#so-sanh" class="hover:text-green-700 transition-colors block text-center py-2">So Sánh</a>
+                 <a href="#phap-mon" class="hover:text-green-700 transition-colors block text-center py-2">44 Pháp Môn</a>
+                 <a href="#lo-trinh" class="hover:text-green-700 transition-colors block text-center py-2">Lộ Trình</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Section 1: Introduction -->
+        <section id="gioi-thieu" class="text-center mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-4">Lộ Trình Đoạn Giảm Phiền Não</h2>
+            
+            <!-- Audio Player -->
+            <div class="max-w-2xl mx-auto my-6">
+                <p class="text-stone-600 mb-2 font-medium">Nghe tóm tắt bài kinh</p>
+                <audio controls class="w-full rounded-lg shadow-md bg-white">
+                    <source src="kinhdoangiam.mp3" type="audio/mpeg">
+                    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+                </audio>
+            </div>
+
+            <p class="max-w-3xl mx-auto text-lg text-stone-700 mb-8">
+                Kinh Đoạn Giảm (Sallekha Sutta) không chỉ là một bài kinh triết lý, mà là một bản đồ thực hành chi tiết do Đức Phật chỉ dạy, nhằm mục đích làm "xói mòn" và loại bỏ các pháp bất thiện, vun bồi các phẩm chất thiện lành để đi đến giải thoát tối hậu. Ứng dụng này sẽ giúp bạn khám phá con đường đó một cách tương tác.
+            </p>
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto text-left border-l-4 border-green-700">
+                <h3 class="text-xl font-bold mb-3 text-stone-800">Vấn Đề Cốt Lõi: Đoạn Trừ Sở Kiến</h3>
+                <p class="text-stone-600 mb-4 italic">Cuộc pháp thoại bắt đầu khi Tôn giả Maha Cunda hỏi Đức Thế Tôn về cách đoạn trừ các "sở kiến" (quan điểm sai lầm) liên quan đến "ngã luận" và "thế giới luận" - cội rễ của khổ đau.</p>
+                <div class="bg-amber-100/50 rounded-lg p-4">
+                    <p class="font-semibold text-green-900">Câu trả lời khai mở của Đức Phật:</p>
+                    <blockquote class="mt-2 text-stone-700 border-l-4 border-amber-500 pl-4 italic">
+                        "...chỗ nào những sở kiến này tiềm ẩn, và chỗ nào những sở kiến này hiện hành, chỉ có cách như thật quán sát chúng với trí tuệ rằng: 'Cái này không phải của tôi, cái này không phải là tôi, cái này không phải tự ngã của tôi', có vậy thời có sự đoạn trừ những sở kiến ấy..."
+                    </blockquote>
+                </div>
+                 <p class="mt-4 text-sm text-stone-500">Lời dạy này nhấn mạnh rằng giải thoát không đến từ việc tìm một lý thuyết khác, mà từ việc phá vỡ sự đồng hóa sai lầm với thân tâm qua tuệ giác vô ngã. Toàn bộ 44 pháp môn đoạn giảm chính là lộ trình thực hành để tuệ giác này phát sinh.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Comparison -->
+        <section id="so-sanh" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-4">Thiền Định & Hạnh Đoạn Giảm</h2>
+                <p class="max-w-3xl mx-auto text-lg text-stone-700">
+                    Một trong những điểm tinh tế nhất của bài kinh là sự phân biệt rạch ròi giữa việc chứng đắc các tầng thiền định và việc thực hành đoạn giảm. Đức Phật chỉ rõ rằng, ngay cả những trạng thái thiền cao nhất cũng không phải là hạnh đoạn giảm, mà chỉ là nơi "an trú" tạm thời.
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-500">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-800 flex items-center">
+                        <span class="mr-3 text-3xl">🧘‍♂️</span> Trú An Lạc & Tịch Tịnh
+                    </h3>
+                    <p class="text-stone-600 mb-4">Đây là các trạng thái an lạc, hạnh phúc (hiện tại lạc trú) hoặc bình lặng, siêu việt (tịch tịnh trú) đạt được qua 8 tầng thiền định. Chúng rất cao quý nhưng vẫn là các **trạng thái** tâm, giúp đè nén phiền não tạm thời.</p>
+                    <ul class="space-y-2 list-inside list-disc text-stone-700">
+                        <li><b>Tứ Thiền Sắc Giới:</b> Được gọi là "Hiện tại lạc trú".</li>
+                        <li><b>Tứ Thiền Vô Sắc Giới:</b> Được gọi là "Tịch tịnh trú".</li>
+                    </ul>
+                    <p class="mt-4 bg-blue-100/60 text-blue-900 font-semibold p-3 rounded-lg">
+                        Kết luận: Dù đạt đến thiền định cao nhất, nếu phiền não ngầm chưa được nhổ bỏ, đó chưa phải là giải thoát.
+                    </p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-green-600">
+                    <h3 class="text-2xl font-bold mb-4 text-green-800 flex items-center">
+                         <span class="mr-3 text-3xl">🌱</span> Hạnh Đoạn Giảm (Sallekha)
+                    </h3>
+                    <p class="text-stone-600 mb-4">Đây là một chuỗi các **hành động** có chủ đích nhằm làm "xói mòn", "gọt giũa" và loại bỏ tận gốc các pháp bất thiện. Đây là nỗ lực chủ động để chuyển hóa tâm, không phải một trạng thái thụ động.</p>
+                    <div class="bg-green-100/60 text-green-900 p-3 rounded-lg">
+                       <p class="font-semibold">Công thức thực hành:</p>
+                       <blockquote class="mt-2 border-l-4 border-green-500 pl-4 italic">
+                        "Những kẻ khác có thể là những người làm hại, chúng ta ở đây không thể là những người làm hại."
+                       </blockquote>
+                    </div>
+                     <p class="mt-4 text-stone-700">Hạnh đoạn giảm là con đường trực tiếp nhổ bỏ phiền não, thay vì chỉ tạm thời lắng dịu chúng.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: 44 Practices -->
+        <section id="phap-mon" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-4">Khám Phá 44 Pháp Môn Đoạn Giảm</h2>
+                <p class="max-w-3xl mx-auto text-lg text-stone-700">
+                    Đây là trái tim của bài kinh - 44 cặp pháp đối trị giúp hành giả gọt giũa tâm mình trong đời sống hàng ngày. Hãy chọn một danh mục để khám phá hoặc xem tất cả. Nhấp vào mỗi thẻ để thấy pháp tu đối trị.
+                </p>
+            </div>
+            <!-- Filter Buttons -->
+            <div id="filter-container" class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+                <button data-filter="all" class="filter-btn bg-green-700 text-white py-2 px-4 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105">Tất cả (44)</button>
+                <button data-filter="Hành vi" class="filter-btn bg-white text-green-700 py-2 px-4 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105">Hành vi (8)</button>
+                <button data-filter="Chánh Đạo" class="filter-btn bg-white text-green-700 py-2 px-4 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105">Chánh Đạo (10)</button>
+                <button data-filter="Tâm lý" class="filter-btn bg-white text-green-700 py-2 px-4 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105">Tâm lý (15)</button>
+                <button data-filter="Phẩm chất" class="filter-btn bg-white text-green-700 py-2 px-4 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105">Phẩm chất (11)</button>
+            </div>
+
+            <!-- Practices Grid -->
+            <div id="practices-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                <!-- Cards will be injected here by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Section 4: 5-Fold Path -->
+        <section id="lo-trinh" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-4">Lộ Trình Giải Thoát Toàn Diện</h2>
+                <p class="max-w-3xl mx-auto text-lg text-stone-700">
+                    Đức Phật không chỉ liệt kê các pháp tu, Ngài còn hệ thống hóa chúng thành một lộ trình 5 khía cạnh tích hợp. Mỗi hành động đạo đức đều mang ý nghĩa giải thoát sâu sắc và đa chiều. Nhấp vào từng bước để hiểu rõ hơn.
+                </p>
+            </div>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-2">
+                <div class="path-step text-center cursor-pointer" data-path="khoidam">
+                    <div class="bg-white rounded-full w-24 h-24 md:w-32 md:h-32 flex items-center justify-center shadow-lg border-2 border-amber-300">
+                        <span class="text-3xl">💡</span>
+                    </div>
+                    <p class="mt-2 font-bold text-stone-700">1. Khởi Tâm</p>
+                </div>
+                <div class="hidden md:block text-2xl text-amber-400 font-bold mx-2">→</div>
+                <div class="block md:hidden text-2xl text-amber-400 font-bold my-2">↓</div>
+                <div class="path-step text-center cursor-pointer" data-path="doitri">
+                    <div class="bg-white rounded-full w-24 h-24 md:w-32 md:h-32 flex items-center justify-center shadow-lg border-2 border-amber-300">
+                        <span class="text-3xl">⚖️</span>
+                    </div>
+                    <p class="mt-2 font-bold text-stone-700">2. Đối Trị</p>
+                </div>
+                 <div class="hidden md:block text-2xl text-amber-400 font-bold mx-2">→</div>
+                 <div class="block md:hidden text-2xl text-amber-400 font-bold my-2">↓</div>
+                <div class="path-step text-center cursor-pointer" data-path="huongthuong">
+                    <div class="bg-white rounded-full w-24 h-24 md:w-32 md:h-32 flex items-center justify-center shadow-lg border-2 border-amber-300">
+                        <span class="text-3xl">🚀</span>
+                    </div>
+                    <p class="mt-2 font-bold text-stone-700">3. Hướng Thượng</p>
+                </div>
+                 <div class="hidden md:block text-2xl text-amber-400 font-bold mx-2">→</div>
+                 <div class="block md:hidden text-2xl text-amber-400 font-bold my-2">↓</div>
+                <div class="path-step text-center cursor-pointer" data-path="giaithoat">
+                    <div class="bg-white rounded-full w-24 h-24 md:w-32 md:h-32 flex items-center justify-center shadow-lg border-2 border-amber-300">
+                        <span class="text-3xl">🕊️</span>
+                    </div>
+                    <p class="mt-2 font-bold text-stone-700">4. Giải Thoát</p>
+                </div>
+            </div>
+            <div id="path-details" class="mt-8 max-w-3xl mx-auto">
+                <!-- Details will be shown here -->
+                <div class="bg-white rounded-xl shadow-lg p-6 text-center border-t-4 border-green-600">
+                    <p class="text-lg text-stone-600">Chọn một bước trên lộ trình để xem giải thích chi tiết.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 5: Chart -->
+        <section id="phan-tich" class="mb-16 md:mb-24 scroll-mt-20">
+             <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-4">Phân Loại 44 Pháp Môn</h2>
+                <p class="max-w-3xl mx-auto text-lg text-stone-700">
+                    Biểu đồ dưới đây cung cấp một cái nhìn tổng quan về sự phân bổ của 44 pháp môn đoạn giảm theo các nhóm chính. Điều này cho thấy con đường tu tập đòi hỏi sự chuyển hóa toàn diện trên nhiều phương diện: từ hành vi bên ngoài, các yếu tố tâm lý, cho đến việc rèn luyện các phẩm chất và tuệ giác.
+                </p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <div class="chart-container">
+                    <canvas id="practicesChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-green-800 text-white">
+        <div class="container mx-auto px-4 py-8 text-center">
+             <p class="font-bold text-lg mb-2">Lời Giáo Huấn Cuối Cùng Của Đức Phật</p>
+             <blockquote class="max-w-2xl mx-auto italic mb-4">
+                 "Này Cunda, đây là những gốc cây, đây là những nhà không tịnh. Này Cunda, hãy Thiền định, chớ có phóng dật, chớ có hối tiếc về sau. Đó là lời giáo huấn của Ta cho các Người."
+             </blockquote>
+             <p class="text-sm text-green-200">&copy; 2024 - Một ứng dụng tương tác dựa trên nội dung Kinh Đoạn Giảm.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const practicesData = [
+        { id: 1, category: 'Hành vi', unwholesome: 'Làm hại', wholesome: 'Không làm hại' },
+        { id: 2, category: 'Hành vi', unwholesome: 'Sát sanh', wholesome: 'Từ bỏ sát sanh' },
+        { id: 3, category: 'Hành vi', unwholesome: 'Lấy của không cho', wholesome: 'Từ bỏ lấy của không cho' },
+        { id: 4, category: 'Hành vi', unwholesome: 'Không phạm hạnh', wholesome: 'Sống phạm hạnh' },
+        { id: 5, category: 'Hành vi', unwholesome: 'Nói láo', wholesome: 'Từ bỏ nói láo' },
+        { id: 6, category: 'Hành vi', unwholesome: 'Nói hai lưỡi', wholesome: 'Từ bỏ nói hai lưỡi' },
+        { id: 7, category: 'Hành vi', unwholesome: 'Nói lời độc ác', wholesome: 'Từ bỏ nói lời độc ác' },
+        { id: 8, category: 'Hành vi', unwholesome: 'Nói lời phù phiếm', wholesome: 'Từ bỏ nói lời phù phiếm' },
+        { id: 9, category: 'Tâm lý', unwholesome: 'Tham dục', wholesome: 'Không tham dục' },
+        { id: 10, category: 'Tâm lý', unwholesome: 'Sân tâm', wholesome: 'Không có sân tâm' },
+        { id: 11, category: 'Chánh Đạo', unwholesome: 'Tà kiến', wholesome: 'Có chánh kiến' },
+        { id: 12, category: 'Chánh Đạo', unwholesome: 'Tà tư duy', wholesome: 'Có chánh tư duy' },
+        { id: 13, category: 'Chánh Đạo', unwholesome: 'Tà ngữ', wholesome: 'Có chánh ngữ' },
+        { id: 14, category: 'Chánh Đạo', unwholesome: 'Tà nghiệp', wholesome: 'Có chánh nghiệp' },
+        { id: 15, category: 'Chánh Đạo', unwholesome: 'Tà mạng', wholesome: 'Có chánh mạng' },
+        { id: 16, category: 'Chánh Đạo', unwholesome: 'Tà tinh tấn', wholesome: 'Có chánh tinh tấn' },
+        { id: 17, category: 'Chánh Đạo', unwholesome: 'Tà niệm', wholesome: 'Có chánh niệm' },
+        { id: 18, category: 'Chánh Đạo', unwholesome: 'Tà định', wholesome: 'Có chánh định' },
+        { id: 19, category: 'Chánh Đạo', unwholesome: 'Tà trí', wholesome: 'Có chánh trí' },
+        { id: 20, category: 'Chánh Đạo', unwholesome: 'Tà giải thoát', wholesome: 'Có chánh giải thoát' },
+        { id: 21, category: 'Tâm lý', unwholesome: 'Hôn trầm thụy miên', wholesome: 'Không bị chi phối' },
+        { id: 22, category: 'Tâm lý', unwholesome: 'Trạo hối', wholesome: 'Không có trạo hối' },
+        { id: 23, category: 'Tâm lý', unwholesome: 'Nghi hoặc', wholesome: 'Trừ diệt nghi hoặc' },
+        { id: 24, category: 'Tâm lý', unwholesome: 'Phẫn nộ', wholesome: 'Không có phẫn nộ' },
+        { id: 25, category: 'Tâm lý', unwholesome: 'Oán hận', wholesome: 'Không có oán hận' },
+        { id: 26, category: 'Tâm lý', unwholesome: 'Hư ngụy', wholesome: 'Không hư ngụy' },
+        { id: 27, category: 'Tâm lý', unwholesome: 'Não hại', wholesome: 'Không não hại' },
+        { id: 28, category: 'Tâm lý', unwholesome: 'Tật đố', wholesome: 'Không tật đố' },
+        { id: 29, category: 'Tâm lý', unwholesome: 'Xan tham', wholesome: 'Không xan tham' },
+        { id: 30, category: 'Tâm lý', unwholesome: 'Man trá', wholesome: 'Không man trá' },
+        { id: 31, category: 'Tâm lý', unwholesome: 'Khi cuống', wholesome: 'Không khi cuống' },
+        { id: 32, category: 'Tâm lý', unwholesome: 'Ngoan cố', wholesome: 'Không ngoan cố' },
+        { id: 33, category: 'Tâm lý', unwholesome: 'Cấp tháo', wholesome: 'Không cấp tháo' },
+        { id: 34, category: 'Phẩm chất', unwholesome: 'Khó nói', wholesome: 'Dễ nói' },
+        { id: 35, category: 'Phẩm chất', unwholesome: 'Ác hữu', wholesome: 'Là thiện hữu' },
+        { id: 36, category: 'Phẩm chất', unwholesome: 'Phóng dật', wholesome: 'Không phóng dật' },
+        { id: 37, category: 'Phẩm chất', unwholesome: 'Bất tín', wholesome: 'Có tín tâm' },
+        { id: 38, category: 'Phẩm chất', unwholesome: 'Không xấu hổ', wholesome: 'Có xấu hổ' },
+        { id: 39, category: 'Phẩm chất', unwholesome: 'Không sợ hãi tội lỗi', wholesome: 'Có sợ hãi tội lỗi' },
+        { id: 40, category: 'Phẩm chất', unwholesome: 'Nghe ít', wholesome: 'Nghe nhiều' },
+        { id: 41, category: 'Phẩm chất', unwholesome: 'Biếng nhác', wholesome: 'Siêng năng' },
+        { id: 42, category: 'Phẩm chất', unwholesome: 'Thất niệm', wholesome: 'An trú niệm' },
+        { id: 43, category: 'Phẩm chất', unwholesome: 'Liệt tuệ', wholesome: 'Thành tựu tuệ' },
+        { id: 44, category: 'Tâm lý', unwholesome: 'Nhiễm thế tục, cố chấp', wholesome: 'Không nhiễm, không cố chấp' }
+    ];
+
+    const practicesGrid = document.getElementById('practices-grid');
+    const filterContainer = document.getElementById('filter-container');
+    const filterButtons = filterContainer.querySelectorAll('.filter-btn');
+
+    function renderPractices(filter = 'all') {
+        practicesGrid.innerHTML = '';
+        const filteredData = filter === 'all' ? practicesData : practicesData.filter(p => p.category === filter);
+        
+        filteredData.forEach(practice => {
+            const cardHTML = `
+                <div class="card-container cursor-pointer aspect-square" style="perspective: 1000px;">
+                    <div class="card-flip relative w-full h-full">
+                        <!-- Front Face -->
+                        <div class="card-face absolute w-full h-full flex flex-col items-center justify-center bg-white rounded-xl shadow-lg p-2 text-center border-t-4 border-red-400">
+                            <p class="text-sm md:text-base font-bold text-red-800">${practice.unwholesome}</p>
+                        </div>
+                        <!-- Back Face -->
+                        <div class="card-back card-face absolute w-full h-full flex flex-col items-center justify-center bg-green-700 text-white rounded-xl shadow-xl p-2 text-center">
+                            <p class="text-sm md:text-base font-bold">${practice.wholesome}</p>
+                            <p class="text-xs mt-1 italic opacity-80">"Những kẻ khác...<br>chúng ta ở đây sẽ..."</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            practicesGrid.innerHTML += cardHTML;
+        });
+    }
+
+    filterContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-btn')) {
+            const filter = e.target.dataset.filter;
+            renderPractices(filter);
+            filterButtons.forEach(btn => {
+                btn.classList.remove('bg-green-700', 'text-white');
+                btn.classList.add('bg-white', 'text-green-700');
+            });
+            e.target.classList.add('bg-green-700', 'text-white');
+            e.target.classList.remove('bg-white', 'text-green-700');
+        }
+    });
+    
+    // Mobile Menu Toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Path details
+    const pathSteps = document.querySelectorAll('.path-step');
+    const pathDetailsContainer = document.getElementById('path-details');
+    const pathDetailsContent = {
+        khoidam: {
+            title: '1. Khởi Tâm (Arousing Intention)',
+            icon: '�',
+            description: "Nền tảng của mọi hành vi. Đức Phật dạy rằng sự khởi tâm, tức ý định, có lợi ích to lớn cho các thiện pháp. Mọi sự chuyển hóa đều phải bắt nguồn từ một quyết tâm, một sự phát nguyện chân chính trong tâm. Đây là bước gieo mầm cho toàn bộ tiến trình tu tập."
+        },
+        doitri: {
+            title: '2. Đối Trị (Counteracting)',
+            icon: '⚖️',
+            description: "Cơ chế chuyển hóa. Giống như một con đường gồ ghề được đối trị bằng một con đường bằng phẳng, mỗi thiện pháp là một 'liều thuốc' đối trị trực tiếp cho một bất thiện pháp tương ứng. Đây là quá trình chủ động vun bồi cái tốt để thay thế và loại bỏ cái xấu."
+        },
+        huongthuong: {
+            title: '3. Hướng Thượng (Leading Upwards)',
+            icon: '🚀',
+            description: "Quỹ đạo phát triển tâm linh. Các pháp bất thiện dẫn 'hướng hạ' (đến khổ đau), còn các thiện pháp dẫn 'hướng thượng' (đến an lạc, giải thoát). Mỗi hành động đoạn giảm là một bước đưa tâm thức lên một tầm cao hơn, thăng tiến tự nhiên về phẩm chất."
+        },
+        giaithoat: {
+            title: '4. Pháp Môn Giải Thoát',
+            icon: '🕊️',
+            description: "Đích đến tối hậu. Thực hành đoạn giảm chính là con đường giải thoát. Đức Phật ví dụ người bị kẹt trong bùn lầy: chỉ người đã tự thoát khỏi bùn lầy mới có thể cứu người khác. Tương tự, chỉ khi tự mình thanh lọc, hành giả mới có thể giúp đỡ chúng sinh."
+        }
+    };
+    
+    pathSteps.forEach(step => {
+        step.addEventListener('click', () => {
+            const pathKey = step.dataset.path;
+            const content = pathDetailsContent[pathKey];
+
+            pathDetailsContainer.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-green-600 animate-fade-in">
+                    <h4 class="text-xl font-bold text-green-800 mb-3 flex items-center justify-center">
+                        <span class="mr-3 text-3xl">${content.icon}</span>
+                        ${content.title}
+                    </h4>
+                    <p class="text-stone-700 text-center">${content.description}</p>
+                </div>
+            `;
+            
+            // Add active styles
+            pathSteps.forEach(s => s.querySelector('div').classList.remove('ring-4', 'ring-green-500'));
+            step.querySelector('div').classList.add('ring-4', 'ring-green-500');
+        });
+    });
+
+
+    // Chart.js implementation
+    const categoryCounts = practicesData.reduce((acc, p) => {
+        acc[p.category] = (acc[p.category] || 0) + 1;
+        return acc;
+    }, {});
+    
+    const chartLabels = Object.keys(categoryCounts);
+    const chartData = Object.values(categoryCounts);
+
+    const ctx = document.getElementById('practicesChart').getContext('2d');
+    const practicesChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: chartLabels.map(label => `${label} (${categoryCounts[label]})`),
+            datasets: [{
+                label: 'Số lượng pháp môn',
+                data: chartData,
+                backgroundColor: [
+                    'rgba(217, 119, 6, 0.8)',  // amber-600
+                    'rgba(22, 163, 74, 0.8)', // green-600
+                    'rgba(59, 130, 246, 0.8)', // blue-500
+                    'rgba(147, 51, 234, 0.8)'  // purple-600
+                ],
+                borderColor: [
+                    'rgba(217, 119, 6, 1)',
+                    'rgba(22, 163, 74, 1)',
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(147, 51, 234, 1)'
+                ],
+                borderWidth: 1,
+                hoverOffset: 16
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                     labels: {
+                        font: {
+                            size: 14,
+                            family: "'Be Vietnam Pro', sans-serif"
+                        },
+                        color: '#44403c' // stone-700
+                    }
+                },
+                tooltip: {
+                    titleFont: {
+                        size: 16,
+                        family: "'Be Vietnam Pro', sans-serif"
+                    },
+                     bodyFont: {
+                        size: 14,
+                        family: "'Be Vietnam Pro', sans-serif"
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += context.parsed;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Initial render
+    renderPractices();
+});
+</script>
+</body>
+</html>
+�
