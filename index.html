@@ -1,14 +1,33 @@
-<ul class="post-list">
-  {% for post in site.categories['nghien-cuu'] %}
-    <li>
-      {% if post.external_url %}
-        <a href="{{ post.external_url }}" target="_blank" rel="noopener noreferrer">{{ post.title }} 🔗</a>
+---
+layout: default
+title: Trang Chủ
+---
+<div class="content-wrapper">
+  <div class="content-section">
+    <h2>Bài Giảng</h2>
+    <ul class="post-list">
+      {% for post in site.categories['bai-giang'] %}
+        <li>
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <span class="post-date">{{ post.date | date: "%d-%m-%Y" }}</span>
+        </li>
       {% else %}
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      {% endif %}
-      <span class="post-date">{{ post.date | date: "%d-%m-%Y" }}</span>
-    </li>
-  {% else %}
-    <li>Chưa có bài nghiên cứu nào.</li>
-  {% endfor %}
-</ul>
+        <li>Chưa có bài giảng nào.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="content-section">
+    <h2>Nghiên Cứu & Thảo Luận</h2>
+    <ul class="post-list">
+      {% for post in site.categories['nghien-cuu'] %}
+        <li>
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <span class="post-date">{{ post.date | date: "%d-%m-%Y" }}</span>
+        </li>
+      {% else %}
+        <li>Chưa có bài nghiên cứu nào.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
