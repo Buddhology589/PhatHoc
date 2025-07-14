@@ -21,11 +21,13 @@ header {
   border-bottom: 3px solid #c8bca8;
 }
 
+/* --- ĐOẠN MÃ ĐÃ ĐƯỢC CẬP NHẬT --- */
 header.site-title {
-  color: #fff;
+  color: #7FFF00; /* Màu xanh lá chuối non */
   text-decoration: none;
-  font-size: 2.2rem;
-  font-weight: bold;
+  font-size: 6.6rem; /* Kích thước gấp 3 lần */
+  font-weight: 700; /* In đậm */
+  text-transform: uppercase; /* Viết hoa toàn bộ */
 }
 
 header p {
